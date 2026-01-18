@@ -14,6 +14,14 @@ function Navbar() {
     ]
 
     useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden"
+        } else {
+            document.body.style.overflow = "unset"
+        }
+    }, [isOpen])
+
+    useEffect(() => {
         const handleScroll = () => {
             // Handle background change
             setScrolled(window.scrollY > 20)
@@ -24,6 +32,7 @@ function Navbar() {
                 const element = document.getElementById(section)
                 if (element) {
                     const rect = element.getBoundingClientRect()
+                    // Detect if section is in the top 300px of the viewport
                     return rect.top >= -100 && rect.top <= 300
                 }
                 return false
@@ -33,11 +42,14 @@ function Navbar() {
         }
 
         window.addEventListener("scroll", handleScroll)
+        // Run once on mount to set initial state
+        handleScroll()
+
         return () => window.removeEventListener("scroll", handleScroll)
     }, [])
 
     return (
-        <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? "py-2 bg-gray-900/80 backdrop-blur-lg border-b border-white/5" : "py-4 bg-transparent"}`}>
+        <nav className={`fixed w-full transition-all duration-500 ${isOpen ? "z-[100] bg-gray-900" : "z-50"} ${scrolled ? "py-2 bg-gray-900/80 backdrop-blur-lg border-b border-white/5" : "py-4 bg-transparent"}`}>
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
                 {/* Logo */}
                 <a href="#home" className="text-2xl font-black tracking-tighter hover:opacity-80 transition-opacity">
@@ -81,32 +93,36 @@ function Navbar() {
                 {/* Mobile Toggle */}
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="md:hidden text-gray-400 hover:text-white transition-colors"
+                    className="md:hidden relative z-[70] p-2 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                    aria-label="Toggle Menu"
                 >
-                    {isOpen ? <X size={24} /> : <Menu size={24} />}
+                    {isOpen ? <X size={32} /> : <Menu size={32} />}
                 </button>
             </div>
 
             {/* Mobile Menu */}
-            <div className={`fixed inset-0 z-40 bg-gray-900/95 backdrop-blur-xl md:hidden transition-all duration-500 ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
-                <div className="flex flex-col items-center justify-center h-full gap-8">
+            <div className={`fixed inset-0 h-screen w-full z-[60] bg-[#0f172a] md:hidden transition-all duration-500 overflow-hidden ${isOpen ? "opacity-100 pointer-events-auto translate-y-0" : "opacity-0 pointer-events-none -translate-y-full"}`}>
+                <div className="flex flex-col items-center justify-center h-full gap-8 px-6">
                     {navLinks.map((link) => (
                         <a
                             key={link.name}
                             href={link.href}
                             onClick={() => setIsOpen(false)}
-                            className={`text-3xl font-bold transition-all ${activeSection === link.href.substring(1) ? "text-blue-500 scale-110" : "text-gray-500"
+                            className={`text-2xl font-bold tracking-tight transition-all duration-300 ${activeSection === link.href.substring(1) ? "text-blue-500 scale-105" : "text-white/60 hover:text-white"
                                 }`}
                         >
                             {link.name}
                         </a>
                     ))}
-                    <div className="flex items-center gap-8 mt-4">
-                        <a href="https://github.com/Ithayaraj" target="_blank" rel="noreferrer" className="text-white group">
-                            <Github size={32} className="group-hover:scale-110 transition-transform" />
+
+                    <div className="h-[1px] w-8 bg-white/10 my-2"></div>
+
+                    <div className="flex items-center gap-8">
+                        <a href="https://github.com/Ithayaraj" target="_blank" rel="noreferrer" className="text-white hover:text-blue-400 transition-colors">
+                            <Github size={32} />
                         </a>
-                        <a href="https://www.linkedin.com/in/ithayaraj-inpalagan-b226b93a5/" target="_blank" rel="noreferrer" className="text-white group">
-                            <Linkedin size={32} className="group-hover:scale-110 transition-transform" />
+                        <a href="https://www.linkedin.com/in/ithayaraj-inpalagan-b226b93a5/" target="_blank" rel="noreferrer" className="text-white hover:text-blue-400 transition-colors">
+                            <Linkedin size={32} />
                         </a>
                     </div>
                 </div>
